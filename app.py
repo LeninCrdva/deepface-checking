@@ -19,13 +19,22 @@ def validateFaces():
         base64_image = data['imageBase64'].split(',')[1]
         image_url = data['imageUrl']
 
+        response = request.get(image_url)
+
+        if response.status_code != 200:
+            return jsonify({'error': 'No se pudo descargar la imagen desde la URL proporcionada'}), 400
+
+        img2 = Image.open(io.BytesIO(response.content))
+        nombre_url = f"{uuid.uuid4()}.jpg"
+        img2.convert("RGB").save(nombre_url)
+
         img_bytes = base64.b64decode(base64_image)
         img = Image.open(io.BytesIO(img_bytes))
         nombre_archivo = f"{uuid.uuid4()}.jpg"
         img.save(nombre_archivo)
 
-        result = DeepFace.verify(nombre_archivo, image_url, model_name='Facenet')
-        
+        result = DeepFace.verify(nombre_archivo, nombre_url, model_name='Facenet')
+
         return jsonify(result)
     except Exception as e:
         return jsonify({
@@ -35,6 +44,8 @@ def validateFaces():
     finally:
         if os.path.exists(nombre_archivo):
             os.remove(nombre_archivo)
+        if os.path.exists(nombre_url):
+            os.remove(nombre_url)
     
 @app.errorhandler(405)
 def method_not_allowed(error):
