@@ -1,0 +1,5 @@
+flask
+deepface
+gunicorn
+opencv-python-headless
+tf-keras
