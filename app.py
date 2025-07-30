@@ -5,16 +5,19 @@ import base64
 from PIL import Image
 import io
 import uuid
+import requests
 
 app = Flask(__name__)
 
 @app.route('/validate', methods=['POST'])
 def validateFaces():
+    nombre_archivo = ""
+    nombre_url = ""
     try:
         if not request.is_json:
             return jsonify({'error': 'Content-Type debe ser application/json'}), 400
         
-        data = request.get_json()
+        data = requests.get_json()
 
         base64_image = data['imageBase64'].split(',')[1]
         image_url = data['imageUrl']
