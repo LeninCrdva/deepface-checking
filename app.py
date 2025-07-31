@@ -17,7 +17,7 @@ def validateFaces():
         if not request.is_json:
             return jsonify({'error': 'Content-Type debe ser application/json'}), 400
         
-        data = requests.get_json()
+        data = request.get_json()
 
         base64_image = data['imageBase64'].split(',')[1]
         image_url = data['imageUrl']
