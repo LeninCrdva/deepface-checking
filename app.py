@@ -1,13 +1,18 @@
 import os
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from deepface import DeepFace
 import base64
 from PIL import Image
 import io
 import uuid
-import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
+CORS(app, resources={r"/validate": {"origins": os.getenv('CORS_ORIGIN', 'http://localhost')}})
+debug = os.getenv('FLASK_DEBUG', 'False').lower() in ['true', '1', 'yes']
 
 @app.route('/validate', methods=['POST'])
 def validateFaces():
@@ -22,21 +27,12 @@ def validateFaces():
         base64_image = data['imageBase64'].split(',')[1]
         image_url = data['imageUrl']
 
-        response = requests.get(image_url)
-
-        if response.status_code != 200:
-            return jsonify({'error': 'No se pudo descargar la imagen desde la URL proporcionada'}), 400
-
-        img2 = Image.open(io.BytesIO(response.content))
-        nombre_url = f"{uuid.uuid4()}.jpg"
-        img2.convert("RGB").save(nombre_url)
-
         img_bytes = base64.b64decode(base64_image)
         img = Image.open(io.BytesIO(img_bytes))
         nombre_archivo = f"{uuid.uuid4()}.jpg"
-        img.convert("RBG").save(nombre_archivo)
+        img.save(nombre_archivo)
 
-        result = DeepFace.verify(nombre_archivo, nombre_url, model_name='Facenet')
+        result = DeepFace.verify(image_url, nombre_archivo, model_name='Facenet', enforce_detection=False)
 
         return jsonify(result)
     except Exception as e:
@@ -59,4 +55,4 @@ def method_not_allowed(error):
     }), 405
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=debug, host='0.0.0.0', port=5000)

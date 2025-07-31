@@ -1,5 +1,7 @@
-flask
+Flask
+Flask-CORS
 deepface
 gunicorn
 opencv-python-headless
 tf-keras
+python-dotenv
