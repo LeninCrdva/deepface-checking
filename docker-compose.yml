@@ -1,8 +1,6 @@
 services:
   flask:
     container_name: flask
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME}/flask-detection:latest
     ports:
       - 5000:5000

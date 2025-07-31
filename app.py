@@ -22,7 +22,7 @@ def validateFaces():
         base64_image = data['imageBase64'].split(',')[1]
         image_url = data['imageUrl']
 
-        response = request.get(image_url)
+        response = requests.get(image_url)
 
         if response.status_code != 200:
             return jsonify({'error': 'No se pudo descargar la imagen desde la URL proporcionada'}), 400
@@ -34,7 +34,7 @@ def validateFaces():
         img_bytes = base64.b64decode(base64_image)
         img = Image.open(io.BytesIO(img_bytes))
         nombre_archivo = f"{uuid.uuid4()}.jpg"
-        img.save(nombre_archivo)
+        img.convert("RBG").save(nombre_archivo)
 
         result = DeepFace.verify(nombre_archivo, nombre_url, model_name='Facenet')
 
